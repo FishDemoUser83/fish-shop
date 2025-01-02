@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fish Shop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Welcome to the Fish Shop</h1>
+  <div id="products"></div>
+  <h2>Cart</h2>
+  <div id="cart">
+    <p>No items in the cart.</p>
+  </div>
+  <form id="orderForm">
+    <h3>Enter Your Details</h3>
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+    <label for="phone">Phone:</label>
+    <input type="text" id="phone" required>
+    <button type="submit">Place Order</button>
+  </form>
+  <script>
+    const products = [
+      { id: 1, name: "Salmon", price: 500 },
+      { id: 2, name: "Tuna", price: 600 },
+      { id: 3, name: "Prawns", price: 700 },
+    ];
+
+    const cart = [];
+    const productContainer = document.getElementById('products');
+    const cartContainer = document.getElementById('cart');
+
+    // Render products
+    products.forEach(product => {
+      const productDiv = document.createElement('div');
+      productDiv.innerHTML = `
+        <p>${product.name} - ₹${product.price}</p>
+        <button onclick="addToCart(${product.id})">Add to Cart</button>
+      `;
+      productContainer.appendChild(productDiv);
+    });
+
+    // Add to Cart
+    function addToCart(productId) {
+      const product = products.find(p => p.id === productId);
+      cart.push(product);
+      updateCart();
+    }
+
+    // Update Cart
+    function updateCart() {
+      cartContainer.innerHTML = '';
+      cart.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.innerHTML = `<p>${item.name} - ₹${item.price}</p>`;
+        cartContainer.appendChild(itemDiv);
+      });
+    }
+
+    // Submit Order
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+
+      const response = await fetch('/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, cart }),
+      });
+
+      const result = await response.json();
+      alert(result.message);
+    });
+  </script>
+</body>
+</html>
